@@ -1,0 +1,3 @@
+.body-wrapper>.container-fluid, .body-wrapper>.container-lg, .body-wrapper>.container-md, .body-wrapper>.container-sm, .body-wrapper>.container-xl, .body-wrapper>.container-xxl {
+    max-width: unset !important;
+}
