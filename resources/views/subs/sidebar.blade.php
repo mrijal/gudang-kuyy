@@ -76,7 +76,7 @@
               <span class="hide-menu">Penjualan</span>
             </li>
             <li class="sidebar-item">
-              <a class="sidebar-link" href="./authentication-login.html" aria-expanded="false">
+              <a class="sidebar-link" href="{{url('barang-keluar')}}" aria-expanded="false">
                 <span>
                   <i class="ti ti-article"></i>
                 </span>
@@ -101,14 +101,14 @@
             </li>
             <li class="nav-small-cap">
               <i class="ti ti-dots nav-small-cap-icon fs-4"></i>
-              <span class="hide-menu">Gudang</span>
+              <span class="hide-menu">Stock</span>
             </li>
             <li class="sidebar-item">
               <a class="sidebar-link" href="./sample-page.html" aria-expanded="false">
                 <span>
                   <i class="ti ti-building-warehouse"></i>
                 </span>
-                <span class="hide-menu">Data Gudang</span>
+                <span class="hide-menu">Stock Gudang</span>
               </a>
             </li>
             <li class="sidebar-item">
@@ -116,7 +116,15 @@
                 <span>
                   <i class="ti ti-article"></i>
                 </span>
-                <span class="hide-menu">Data Barang Gudang</span>
+                <span class="hide-menu">Stock Opname</span>
+              </a>
+            </li>
+            <li class="sidebar-item">
+              <a class="sidebar-link" href="./icon-tabler.html" aria-expanded="false">
+                <span>
+                  <i class="ti ti-file-description"></i>
+                </span>
+                <span class="hide-menu">Laporan Opname</span>
               </a>
             </li>
           </ul>
