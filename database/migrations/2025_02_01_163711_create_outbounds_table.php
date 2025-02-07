@@ -17,6 +17,10 @@ return new class extends Migration
             $table->unsignedBigInteger('user_id')->nullable();
             $table->string('customer_name')->nullable();
             $table->string('note')->nullable();
+            $table->text('shipping_address')->nullable();
+            $table->unsignedBigInteger('shipping_fee')->nullable();
+            $table->string('shipping_method')->nullable();
+            $table->unsignedBigInteger('discount')->nullable();
             $table->string('payment_method')->nullable();
             $table->unsignedBigInteger('total_payment')->nullable();
             $table->string('payment_history')->nullable();

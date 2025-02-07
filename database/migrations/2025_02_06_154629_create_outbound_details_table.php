@@ -17,6 +17,7 @@ return new class extends Migration
             $table->unsignedBigInteger('product_id')->nullable();
             $table->integer('quantity')->nullable();
             $table->unsignedBigInteger('price_per_unit')->nullable();
+            $table->unsignedBigInteger('discount')->nullable();
             $table->string('note')->nullable();
             $table->timestamps();
 

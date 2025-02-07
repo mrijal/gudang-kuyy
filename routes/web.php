@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ApiController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BarangKeluarController;
 use App\Http\Controllers\BarangMasukController;
@@ -18,4 +19,6 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('barang-masuk',     BarangMasukController::class);
     Route::resource('barang-keluar',    BarangkeluarController::class);
     Route::resource('supplier',         SupplierController::class);
+
+    Route::get('api/product/{id}',      [ApiController::class, 'getProduct']);
 });

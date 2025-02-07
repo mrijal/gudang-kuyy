@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Outbound;
+use App\Models\OutboundDetail;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -14,7 +15,9 @@ class BarangKeluarController extends Controller
      */
     public function index()
     {
-        return view('main.barang-keluar.data');
+        $data = $this->data;
+        $data['barang_keluar'] = Outbound::all();
+        return view('main.barang-keluar.data', $data);
     }
 
     /**
@@ -25,7 +28,7 @@ class BarangKeluarController extends Controller
         $data = $this->data;
         $data['products'] = Product::all();
 
-        return view('main.barang-keluar.create');
+        return view('main.barang-keluar.create', $data);
     }
 
     /**
@@ -37,16 +40,48 @@ class BarangKeluarController extends Controller
             'tgl_keluar' => 'required',
             'produk' => 'required',
             'qty' => 'required',
+            'payment_method' => 'required',
+            'total_payment' => 'required',
+            'status' => 'required',
         ]);
+
+        dd($request->all());
+
+        $payment_history = [];
+        $payment_history[] = [
+            'payment_date' => $request->tgl_keluar,
+            'payment_method' => $request->payment_method,
+            'total_payment' => $request->total_payment,
+        ];
+
+        $payment_history = json_encode($payment_history);
 
         $user = Auth::user();
         $newOutbound = Outbound::create([
             'outbound_date' => $request->tgl_keluar,
-            'product_id' => $request->produk,
             'user_id' => $user->id,
-            'qty' => $request->qty,
-            'note' => $request->keterangan ?? null,
+            'customer_name' => $request->customer_name ?? null,
+            'note' => $request->note ?? null,
+            'shipping_address' => $request->shipping_address ?? null,
+            'shipping_fee' => $request->shipping_fee ?? null,
+            'shipping_method' => $request->shipping_method ?? null,
+            'discount' => $request->discount ?? null,
+            'payment_method' => $request->payment_method,
+            'total_payment' => $request->total_payment,
+            'payment_history' => $payment_history,
+            'status' => $request->status,
         ]);
+
+        foreach ($request->produk as $key => $value) {
+            OutboundDetail::create([
+                'outbound_id' => $newOutbound->id,
+                'product_id' => $value,
+                'quantity' => $request->qty[$key],
+                'discount' => $request->discount[$key] ?? null,
+                'price_per_unit' => $request->price_per_unit[$key] ?? null,
+                'note' => $request->note_produk[$key] ?? null,
+            ]);
+        }
 
         return redirect('barang-keluar')->with('success', 'Data barang keluar berhasil ditambahkan.');
     }

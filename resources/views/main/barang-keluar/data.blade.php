@@ -5,7 +5,10 @@
   <div class="col-lg-12 d-flex align-items-stretch">
     <div class="card w-100">
       <div class="card-body p-4">
-        <h3 class="card-title fw-semibold mb-4">Barang Keluar / Penjualan</h3>
+        <div class="d-flex justify-content-between align-items-center">
+          <h2 class="fw-semibold mb-4">Barang Keluar</h2>
+          <a href="{{url('barang-keluar/create')}}" class="btn btn-primary">Tambah Data</a>
+        </div>
         <div class="table-responsive">
           <table class="table text-nowrap mb-0 align-middle">
             <thead class="text-dark fs-4">
@@ -17,13 +20,16 @@
                   <h6 class="fw-semibold mb-0">Tgl Masuk</h6>
                 </th>
                 <th class="border-bottom-0">
+                  <h6 class="fw-semibold mb-0">Customer</h6>
+                </th>
+                <th class="border-bottom-0">
                   <h6 class="fw-semibold mb-0">Petugas</h6>
                 </th>
                 <th class="border-bottom-0">
-                  <h6 class="fw-semibold mb-0">Nama Barang</h6>
+                  <h6 class="fw-semibold mb-0">Jumlah Barang</h6>
                 </th>
                 <th class="border-bottom-0">
-                  <h6 class="fw-semibold mb-0">Jumlah</h6>
+                  <h6 class="fw-semibold mb-0">Catatan</h6>
                 </th>
                 <th class="border-bottom-0">
                   <h6 class="fw-semibold mb-0">Opsi</h6>
@@ -31,27 +37,43 @@
               </tr>
             </thead>
             <tbody>
+              @foreach ($barang_keluar as $item)
+              @php
+                  // format inbound_date to 01 Jan 2024
+                  $date = date_create($item->inbound_date);
+                  $date = date_format($date, "d M Y");
+
+                  // count how much product in this inbound
+                  $total_product = 0;
+                  foreach ($item->details as $data) {
+                    $total_product += $data->quantity;
+                  }
+              @endphp
               <tr>
-                <td class="border-bottom-0"><h6 class="fw-semibold mb-0">1</h6></td>
+                <td class="border-bottom-0"><h6 class="fw-semibold mb-0">{{$loop->iteration}}</h6></td>
                 <td class="border-bottom-0">
-                    <h6 class="fw-semibold mb-1">01 Jan 2024</h6>                     
+                    <h6 class="fw-semibold mb-1">{{$date}}</h6>                     
                 </td>
                 <td class="border-bottom-0">
-                  <p class="mb-0 fw-normal">Admin Gudang</p>
+                  <p class="mb-0 fw-normal">{{$item->customer_name ?? "-"}}</p>
                 </td>
                 <td class="border-bottom-0">
-                  <h6 class="fw-semibold mb-0 fs-4">Mouse</h6>
+                  <p class="mb-0 fw-normal">{{$item->user ? $item->user->name : null}}</p>
                 </td>
                 <td class="border-bottom-0">
-                  <h6 class="fw-semibold mb-0 fs-4">3</h6>
+                  <h6 class="fw-semibold mb-0 fs-4">{{$total_product}}</h6>
+                </td>
+                <td class="border-bottom-0">
+                  <h6 class="fw-semibold mb-0 fs-4">{{$item->note}}</h6>
                 </td>
                 <td class="border-bottom-0">
                   <div class="d-flex align-items-center gap-2">
-                    <a href="" class="btn btn-success" title="Edit Data" ><i class="ti ti-edit"></i></a>
-                    <a href="" class="btn btn-primary" title="Detail Data" ><i class="ti ti-eye"></i></a>
+                    <a href="{{url('barang-masuk/'. $item->id . '/edit')}}" class="btn btn-success" title="Edit Data" ><i class="ti ti-edit"></i></a>
+                    <a href="{{url('barang-masuk/'. $item->id)}}" class="btn btn-primary" title="Detail Data" ><i class="ti ti-eye"></i></a>
                   </div>
                 </td>
-              </tr>           
+              </tr>      
+              @endforeach     
             </tbody>
           </table>
         </div>
