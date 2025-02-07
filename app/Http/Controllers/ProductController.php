@@ -2,19 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Outbound;
-use App\Models\Product;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
-class BarangKeluarController extends Controller
+class ProductController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        return view('main.barang-keluar.data');
+        //
     }
 
     /**
@@ -22,10 +19,7 @@ class BarangKeluarController extends Controller
      */
     public function create()
     {
-        $data = $this->data;
-        $data['products'] = Product::all();
-
-        return view('main.barang-keluar.create');
+        //
     }
 
     /**
@@ -33,22 +27,7 @@ class BarangKeluarController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
-            'tgl_keluar' => 'required',
-            'produk' => 'required',
-            'qty' => 'required',
-        ]);
-
-        $user = Auth::user();
-        $newOutbound = Outbound::create([
-            'outbound_date' => $request->tgl_keluar,
-            'product_id' => $request->produk,
-            'user_id' => $user->id,
-            'qty' => $request->qty,
-            'note' => $request->keterangan ?? null,
-        ]);
-
-        return redirect('barang-keluar')->with('success', 'Data barang keluar berhasil ditambahkan.');
+        //
     }
 
     /**

@@ -11,19 +11,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('outbounds', function (Blueprint $table) {
+        Schema::create('inbounds', function (Blueprint $table) {
             $table->id();
-            $table->dateTime('outbound_date')->nullable();
+            $table->dateTime('inbound_date')->nullable();
             $table->unsignedBigInteger('user_id')->nullable();
-            $table->string('customer_name')->nullable();
-            $table->string('note')->nullable();
-            $table->string('payment_method')->nullable();
-            $table->unsignedBigInteger('total_payment')->nullable();
-            $table->string('payment_history')->nullable();
-            $table->string('status')->nullable();
+            $table->unsignedBigInteger('supplier_id')->nullable();
+            $table->text('note')->nullable();
             $table->timestamps();
 
             $table->foreign('user_id')->references('id')->on('users');
+            $table->foreign('supplier_id')->references('id')->on('suppliers')->nullOnDelete();
         });
     }
 
@@ -32,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('outbounds');
+        Schema::dropIfExists('inbounds');
     }
 };

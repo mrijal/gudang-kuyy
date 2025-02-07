@@ -4,14 +4,14 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Opname extends Model
+class Supplier extends Model
 {
     protected $guarded = [
         'id'
     ];
 
-    public function product()
+    public function inbounds()
     {
-        return $this->belongsTo(Product::class);
+        return $this->hasMany(Inbound::class);
     }
 }

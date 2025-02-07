@@ -4,7 +4,7 @@
       <!-- Sidebar scroll-->
       <div>
         <div class="brand-logo d-flex align-items-center justify-content-between">
-          <a href="./index.html" class="text-nowrap logo-img">
+          <a href="{{url('/')}}" class="text-nowrap logo-img">
             <img src="/assets/images/logos/logo.png" width="100" class="me-3" alt="" />
             <b>Gudang Kuyy</b>
           </a>
@@ -20,7 +20,7 @@
               <span class="hide-menu">Home</span>
             </li>
             <li class="sidebar-item">
-              <a class="sidebar-link" href="./index.html" aria-expanded="false">
+              <a class="sidebar-link" href="{{url('/')}}" aria-expanded="false">
                 <span>
                   <i class="ti ti-layout-dashboard"></i>
                 </span>
@@ -48,7 +48,7 @@
               </a>
             </li>
             <li class="sidebar-item">
-              <a class="sidebar-link" href="./ui-card.html" aria-expanded="false">
+              <a class="sidebar-link" href="{{url('supplier')}}" aria-expanded="false">
                 <span>
                   <i class="ti ti-users"></i>
                 </span>

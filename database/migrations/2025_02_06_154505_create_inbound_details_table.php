@@ -11,17 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('opnames', function (Blueprint $table) {
+        Schema::create('inbound_details', function (Blueprint $table) {
             $table->id();
-            $table->dateTime('opname_date')->nullable();
-            $table->unsignedBigInteger('user_id')->nullable();
+            $table->unsignedBigInteger('inbound_id')->nullable();
             $table->unsignedBigInteger('product_id')->nullable();
-            $table->integer('stock')->nullable();
-            $table->integer('real_stock')->nullable();
-            $table->string('note')->nullable();
+            $table->integer('quantity')->nullable();
+            $table->text('note')->nullable();
             $table->timestamps();
 
-            $table->foreign('user_id')->references('id')->on('users');
+            $table->foreign('inbound_id')->references('id')->on('inbounds');
             $table->foreign('product_id')->references('id')->on('products');
         });
     }
@@ -31,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('opnames');
+        Schema::dropIfExists('inbound_details');
     }
 };
