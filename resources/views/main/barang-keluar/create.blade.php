@@ -280,9 +280,19 @@
       // event btnradio2 to toggle shipping_address_row and shipping_fee_row
       $('#btnradio2').click(function(){
         // toggle shipping_address_row
-        $('#shipping_address_row').toggleClass('d-none');
+        $('#shipping_address_row').removeClass('d-none');
         // toggle shipping_fee_row
-        $('#shipping_fee_row').toggleClass('d-none');
+        $('#shipping_fee_row').removeClass('d-none');
+        // calculate total
+        calculateTotal();
+      });
+
+      // event btnradio1 to toggle shipping_address_row and shipping_fee_row
+      $('#btnradio1').click(function(){
+        // toggle shipping_address_row
+        $('#shipping_address_row').addClass('d-none');
+        // toggle shipping_fee_row
+        $('#shipping_fee_row').addClass('d-none');
         // calculate total
         calculateTotal();
       });

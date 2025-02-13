@@ -6,9 +6,13 @@ use App\Models\Inbound;
 use App\Models\InboundDetail;
 use App\Models\Product;
 use App\Models\Supplier;
+use Box\Spout\Writer\Common\Creator\Style\StyleBuilder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Box\Spout\Writer\Common\Creator\WriterEntityFactory;
+use Barryvdh\DomPDF\Facade\Pdf;
+
 
 class BarangMasukController extends Controller
 {
@@ -66,6 +70,11 @@ class BarangMasukController extends Controller
                     'note' => $request->keterangan_produk[$key] ?? null,
                     'quantity' => $request->qty[$key],
                 ];
+
+                // update product stock by $request->qty[$key]
+                $product = Product::find($value);
+                $product->stock += $request->qty[$key];
+                $product->save();
             }
 
             if (count($details) > 0) {
@@ -159,9 +168,11 @@ class BarangMasukController extends Controller
                     return redirect('barang-masuk')->with('error', 'Data barang masuk gagal diubah. Produk ' . $deleteDetail->product->name . ' telah digunakan pada barang keluar.');
                 } else {
                     // decrease product stock by $deleteDetail->quantity
-                    $deleteDetail->product->stock -= $deleteDetail->quantity;
-                    $deleteDetail->product->save();
-                    $deleteDetail->delete();
+                    $product = Product::find($deleteDetail->product_id);
+                    if ($product) {
+                        $product->stock -= $deleteDetail->quantity;
+                        $product->save();
+                    }
                 }
             }
 
@@ -169,11 +180,31 @@ class BarangMasukController extends Controller
             foreach ($details as $detail) {
                 if (!empty($detail['id'])) {
                     $existingDetail = InboundDetail::find($detail['id']);
+                    // store old quantity
+                    $oldQuantity = $existingDetail->quantity;
+                    $newQuantity = $detail['quantity'];
+
+                    $stockDiff = $newQuantity - $oldQuantity;
+
                     if ($existingDetail) {
                         $existingDetail->update($detail);
                     }
+
+                    // update product stock by $stockDiff
+                    $product = Product::find($detail['product_id']);
+                    if ($product) {
+                        $product->stock += $stockDiff;
+                        $product->save();
+                    }
                 } else {
                     InboundDetail::create($detail);
+
+                    // update product stock by $detail['quantity']
+                    $product = Product::find($detail['product_id']);
+                    if ($product) {
+                        $product->stock += $detail['quantity'];
+                        $product->save();
+                    }
                 }
             }
 
@@ -193,14 +224,127 @@ class BarangMasukController extends Controller
     public function destroy(string $id)
     {
         try {
-            $inbound = Inbound::find($id);
             // delete details
-            InboundDetail::where('inbound_id', $inbound->id)->delete();
+            $inboundDetails = InboundDetail::where('inbound_id', $id)->get();
+            foreach ($inboundDetails as $inboundDetail) {
+                $product = Product::find($inboundDetail->product_id);
+                if ($product) {
+                    $product->stock = $product->stock + $inboundDetail->quantity;
+                    $product->save();
+                }
+                $inboundDetail->delete();
+            }
+            $inbound = Inbound::find($id);
             $inbound->delete();
+
             return redirect('barang-masuk')->with('success', 'Data barang masuk berhasil dihapus.');
         } catch (\Throwable $th) {
             Log::error($th);
             return redirect('barang-masuk')->with('error', 'Data barang masuk gagal dihapus.');
         }
+    }
+
+    public function report(Request $request)
+    {
+        $startDate = $request->startDate ?? date('Y-m-d');
+        $endDate = $request->endDate ?? date('Y-m-d');
+        $date = $startDate . ' - ' . $endDate;
+        $data = $this->data;
+        $data['searchDate'] = $date;
+        $data['barang_masuk'] = Inbound::where('inbound_date', '>=', $startDate)
+            ->where('inbound_date', '<=', $endDate)
+            ->get();
+
+        $data['detail_barang_masuk'] = InboundDetail::whereHas('inbound', function ($query) use ($startDate, $endDate) {
+            $query->where('inbound_date', '>=', $startDate)
+                ->where('inbound_date', '<=', $endDate);
+        })->get();
+        $data['startDate'] = $startDate;
+        $data['endDate'] = $endDate;
+        return view('main.barang-masuk.report', $data);
+    }
+
+    public function export(Request $request)
+    {
+        $startDate = $request->query('startDate');
+        $endDate = $request->query('endDate');
+
+        $data = InboundDetail::whereHas('inbound', function ($query) use ($startDate, $endDate) {
+            $query->whereBetween('inbound_date', [$startDate, $endDate]);
+        })->get();
+
+        // timestamp for the file name
+        $timestamp = date('YmdHis');
+
+        // Create a writer instance for XLSX
+        $writer = WriterEntityFactory::createXLSXWriter();
+        $writer->openToBrowser('barang-masuk_' . $timestamp . '.xlsx'); // Sends the file directly to the browser
+
+        // Create a bold style for the header row
+        $headerStyle = (new StyleBuilder())->setFontBold()->build();
+
+        // Define the header row
+        $headerRow = WriterEntityFactory::createRowFromArray([
+            'No',
+            'Nama Produk',
+            'Quantity',
+            'Tanggal Masuk',
+            'Supplier',
+            'Petugas',
+            'Catatan'
+        ], $headerStyle);
+
+        // Add header row to the file
+        $writer->addRow($headerRow);
+
+        // Add data rows
+        $no = 1;
+        foreach ($data as $item) {
+            $row = WriterEntityFactory::createRowFromArray([
+                $no++,
+                $item->product->name ?? 'N/A',
+                number_format($item->quantity, 0, ',', '.'),
+                $item->inbound->inbound_date ?? 'N/A',
+                $item->inbound->supplier->name ?? 'N/A',
+                $item->inbound->user->name ?? 'N/A',
+                $item->inbound->note ?? 'N/A',
+            ]);
+            $writer->addRow($row);
+        }
+
+        // Close the writer to finalize the file
+        $writer->close();
+    }
+
+    public function print(Request $request)
+    {
+        $startDate = $request->query('startDate');
+        $endDate = $request->query('endDate');
+
+        $data = InboundDetail::whereHas('inbound', function ($query) use ($startDate, $endDate) {
+            $query->whereBetween('inbound_date', [$startDate, $endDate]);
+        })->get();
+
+        // Format the data for printing
+        $formattedData = $data->map(function ($item, $index) {
+            return [
+                'No' => $index + 1,
+                'Nama Produk' => $item->product->name ?? 'N/A',
+                'Quantity' => number_format($item->quantity, 0, ',', '.'),
+                'Tanggal Masuk' => $item->inbound->inbound_date ?? 'N/A',
+                'Supplier' => $item->inbound->supplier->name ?? 'N/A',
+                'Petugas' => $item->inbound->user->name ?? 'N/A',
+                'Catatan' => $item->inbound->note ?? 'N/A',
+            ];
+        });
+
+        // Generate PDF
+        $pdf = Pdf::loadView('print.barang_masuk', [
+            'data' => $formattedData,
+            'startDate' => $startDate,
+            'endDate' => $endDate,
+        ])->setPaper('a4', 'portrait');
+
+        return $pdf->stream('Laporan-Barang-Masuk.pdf'); // Open in browser
     }
 }

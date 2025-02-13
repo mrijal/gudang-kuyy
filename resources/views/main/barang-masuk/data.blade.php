@@ -64,6 +64,11 @@
                   <div class="d-flex align-items-center gap-2">
                     <a href="{{url('barang-masuk/'. $item->id . '/edit')}}" class="btn btn-success" title="Edit Data" ><i class="ti ti-edit"></i></a>
                     <a href="{{url('barang-masuk/'. $item->id)}}" class="btn btn-primary" title="Detail Data" ><i class="ti ti-eye"></i></a>
+                    <form action="{{url('barang-masuk/'. $item->id)}}" method="POST">
+                      @csrf
+                      @method('DELETE')
+                      <a href="javascript:void(0)" onclick="hapus(this)" class="btn btn-danger" title="Delete Data" ><i class="ti ti-trash"></i></a>
+                    </form>
                   </div>
                 </td>
               </tr>      
@@ -76,3 +81,25 @@
   </div>
 </div>
 @endsection
+
+@push('scripts')
+    
+    <script>
+      function hapus(el) {
+            Swal.fire({
+                title: "Yakin Hapus?",
+                text: "Data Detail ini akan terhapus!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#d33",
+                cancelButtonColor: "#3085d6",
+                confirmButtonText: "Yoi Bang!"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $(el).closest('form').submit();
+                }
+            });
+        }
+        
+        </script>
+@endpush

@@ -40,7 +40,7 @@
               </a>
             </li>
             <li class="sidebar-item">
-              <a class="sidebar-link" href="./ui-alerts.html" aria-expanded="false">
+              <a class="sidebar-link" href="{{url('laporan-barang-masuk')}}" aria-expanded="false">
                 <span>
                   <i class="ti ti-file-description"></i>
                 </span>
@@ -84,27 +84,27 @@
               </a>
             </li>
             <li class="sidebar-item">
-              <a class="sidebar-link" href="./authentication-register.html" aria-expanded="false">
+              <a class="sidebar-link" href="{{url('laporan-barang-keluar')}}" aria-expanded="false">
                 <span>
                   <i class="ti ti-file-description"></i>
                 </span>
                 <span class="hide-menu">Laporan Penjualan</span>
               </a>
             </li>
-            <li class="sidebar-item">
-              <a class="sidebar-link" href="./authentication-register.html" aria-expanded="false">
+            {{-- <li class="sidebar-item">
+              <a class="sidebar-link" href="" aria-expanded="false">
                 <span>
                   <i class="ti ti-cash"></i>
                 </span>
                 <span class="hide-menu">POS</span>
               </a>
-            </li>
+            </li> --}}
             <li class="nav-small-cap">
               <i class="ti ti-dots nav-small-cap-icon fs-4"></i>
               <span class="hide-menu">Stock</span>
             </li>
             <li class="sidebar-item">
-              <a class="sidebar-link" href="./sample-page.html" aria-expanded="false">
+              <a class="sidebar-link" href="{{url('gudang')}}" aria-expanded="false">
                 <span>
                   <i class="ti ti-building-warehouse"></i>
                 </span>
@@ -112,7 +112,7 @@
               </a>
             </li>
             <li class="sidebar-item">
-              <a class="sidebar-link" href="./icon-tabler.html" aria-expanded="false">
+              <a class="sidebar-link" href="#" aria-expanded="false">
                 <span>
                   <i class="ti ti-article"></i>
                 </span>
@@ -120,7 +120,7 @@
               </a>
             </li>
             <li class="sidebar-item">
-              <a class="sidebar-link" href="./icon-tabler.html" aria-expanded="false">
+              <a class="sidebar-link" href="#" aria-expanded="false">
                 <span>
                   <i class="ti ti-file-description"></i>
                 </span>

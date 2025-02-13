@@ -6,8 +6,16 @@
     <div class="card w-100">
       <div class="card-body p-4">
         <div class="d-flex justify-content-between align-items-center">
-          <h2 class="fw-semibold mb-4">Barang Keluar</h2>
-          <a href="{{url('barang-keluar/create')}}" class="btn btn-primary">Tambah Data</a>
+          <h2 class="fw-semibold mb-4">Laporan Barang Keluar</h2>
+        </div>
+        <div class="d-flex gap-2 align-items-center justify-content-between">
+          <div class="d-flex w-25">
+            <input type="text" class="daterange form-control" value="{{$searchDate}}" />
+          </div>
+          <div class="d-flex gap-2">
+            <a href="{{url('barang-keluar/print')}}?startDate={{$startDate}}&endDate={{$endDate}}" class="btn btn-primary">Print Laporan</a>
+            <a href="{{url('barang-keluar/export')}}?startDate{{$endDate}}&endDate={{$endDate}}" class="btn btn-success">Export Excel</a>
+          </div>
         </div>
         <div class="table-responsive">
           <table class="table text-nowrap mb-0 align-middle">
@@ -17,7 +25,7 @@
                   <h6 class="fw-semibold mb-0">No</h6>
                 </th>
                 <th class="border-bottom-0">
-                  <h6 class="fw-semibold mb-0">Tgl Keluar</h6>
+                  <h6 class="fw-semibold mb-0">Tgl keluar</h6>
                 </th>
                 <th class="border-bottom-0">
                   <h6 class="fw-semibold mb-0">Customer</h6>
@@ -31,12 +39,14 @@
                 <th class="border-bottom-0">
                   <h6 class="fw-semibold mb-0">Catatan</h6>
                 </th>
-                <th class="border-bottom-0">
-                  <h6 class="fw-semibold mb-0">Opsi</h6>
-                </th>
               </tr>
             </thead>
             <tbody>
+              @if ($barang_keluar->isEmpty())
+                <tr>
+                  <td colspan="7" class="text-center">Data Tidak Tersedia untuk tanggal ini</td>
+                </tr>
+              @endif
               @foreach ($barang_keluar as $item)
               @php
                   // format inbound_date to 01 Jan 2024
@@ -66,17 +76,6 @@
                 <td class="border-bottom-0">
                   <h6 class="fw-semibold mb-0 fs-4">{{$item->note}}</h6>
                 </td>
-                <td class="border-bottom-0">
-                  <div class="d-flex align-items-center gap-2">
-                    <a href="{{url('barang-keluar/'. $item->id . '/edit')}}" class="btn btn-success" title="Edit Data" ><i class="ti ti-edit"></i></a>
-                    <a href="{{url('barang-keluar/'. $item->id)}}" class="btn btn-primary" title="Detail Data" ><i class="ti ti-eye"></i></a>
-                    <form action="{{url('barang-keluar/'. $item->id)}}" method="POST">
-                      @csrf
-                      @method('DELETE')
-                      <a href="javascript:void(0)" onclick="hapus(this)" class="btn btn-danger" title="Delete Data" ><i class="ti ti-trash"></i></a>
-                    </form>
-                  </div>
-                </td>
               </tr>      
               @endforeach     
             </tbody>
@@ -105,5 +104,20 @@
                     $(el).closest('form').submit();
                 }
             });
-        }</script>
+        }
+        
+      $(function() {
+        
+        $('.daterange').daterangepicker({
+          opens: 'right',
+          locale: {
+            format: 'YYYY-MM-DD'
+          }
+        }, function(start, end, label) {
+          // redirect to {{url('barang-masuk/report')}}?startDate=2024-01-01&endDate=2024-01-01
+          window.location.href = "{{url('laporan-barang-keluar')}}?startDate=" + start.format('YYYY-MM-DD') + "&endDate=" + end.format('YYYY-MM-DD');
+        });
+      });
+        
+    </script>
 @endpush
