@@ -6,15 +6,15 @@
     <div class="card w-100">
       <div class="card-body p-4">
         <div class="d-flex justify-content-between align-items-center">
-          <h2 class="fw-semibold mb-4">Laporan Barang Masuk</h2>
+          <h2 class="fw-semibold mb-4">Laporan Stock Opname</h2>
         </div>
         <div class="d-flex gap-2 align-items-center justify-content-between">
           <div class="d-flex w-25">
             <input type="text" class="daterange form-control" value="{{$searchDate}}" />
           </div>
           <div class="d-flex gap-2">
-            <a href="{{url('barang-masuk/print')}}?startDate={{$startDate}}&endDate={{$endDate}}" class="btn btn-primary" target="_blank">Print Laporan</a>
-            <a href="{{url('barang-masuk/export')}}?startDate={{$endDate}}&endDate={{$endDate}}" class="btn btn-success" target="_blank">Export Excel</a>
+            <a href="{{url('stock-opname/print')}}?startDate={{$startDate}}&endDate={{$endDate}}" class="btn btn-primary" target="_blank">Print Laporan</a>
+            <a href="{{url('stock-opname/export')}}?startDate={{$endDate}}&endDate={{$endDate}}" class="btn btn-success" target="_blank">Export Excel</a>
           </div>
         </div>
         <div class="table-responsive">
@@ -25,19 +25,19 @@
                   <h6 class="fw-semibold mb-0">No</h6>
                 </th>
                 <th class="border-bottom-0">
-                  <h6 class="fw-semibold mb-0">Tgl Masuk</h6>
+                  <h6 class="fw-semibold mb-0">Tgl Opname</h6>
                 </th>
                 <th class="border-bottom-0">
                   <h6 class="fw-semibold mb-0">Petugas</h6>
                 </th>
                 <th class="border-bottom-0">
-                  <h6 class="fw-semibold mb-0">Supplier</h6>
-                </th>
-                <th class="border-bottom-0">
                   <h6 class="fw-semibold mb-0">Nama Barang</h6>
                 </th>
                 <th class="border-bottom-0">
-                  <h6 class="fw-semibold mb-0">Jumlah Barang</h6>
+                  <h6 class="fw-semibold mb-0">Stock Awal</h6>
+                </th>
+                <th class="border-bottom-0">
+                  <h6 class="fw-semibold mb-0">Stock Opname</h6>
                 </th>
                 <th class="border-bottom-0">
                   <h6 class="fw-semibold mb-0">Catatan</h6>
@@ -45,17 +45,17 @@
               </tr>
             </thead>
             <tbody>
-              @if ($detail_barang_masuk->isEmpty())
+              @if ($opnames->isEmpty())
                 <tr>
                   <td colspan="5" class="text-center">Data Tidak Tersedia untuk tanggal ini</td>
                 </tr>
                   
               @endif
-              @foreach ($detail_barang_masuk as $item)
+              @foreach ($opnames as $item)
                 @php
                     // format inbound_date to 01 Jan 2024
-                    $date = date_create($item->inbound->inbound_date);
-                    $date = date_format($date, "d M Y");
+                    $date = date_create($item->opname_date);
+                    $date = date_format($date, "d M Y H:i:s");
                 @endphp
                 <tr>
                   <td class="border-bottom-0"><h6 class="fw-semibold mb-0">{{$loop->iteration}}</h6></td>
@@ -63,16 +63,16 @@
                       <h6 class="fw-semibold mb-1">{{$date}}</h6>                     
                   </td>
                   <td class="border-bottom-0">
-                    <p class="mb-0 fw-normal">{{$item->inbound->user ? $item->inbound->user->name : null}}</p>
-                  </td>
-                  <td class="border-bottom-0">
-                    <p class="mb-0 fw-normal">{{$item->inbound->supplier ? $item->inbound->supplier->name : null}}</p>
+                    <p class="mb-0 fw-normal">{{$item->user ? $item->user->name : null}}</p>
                   </td>
                   <td class="border-bottom-0">
                     <h6 class="fw-semibold mb-0 fs-4">{{$item->product->name}}</h6>
                   </td>
                   <td class="border-bottom-0">
-                    <h6 class="fw-semibold mb-0 fs-4">{{number_format($item->quantity, 0, ',','.')}}</h6>
+                    <h6 class="fw-semibold mb-0 fs-4">{{number_format($item->stock, 0, ',','.')}}</h6>
+                  </td>
+                  <td class="border-bottom-0">
+                    <h6 class="fw-semibold mb-0 fs-4">{{number_format($item->real_stock, 0, ',','.')}}</h6>
                   </td>
                   <td class="border-bottom-0">
                     <h6 class="fw-semibold mb-0 fs-4">{{$item->note}}</h6>

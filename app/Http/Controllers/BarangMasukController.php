@@ -246,11 +246,16 @@ class BarangMasukController extends Controller
 
     public function report(Request $request)
     {
-        $startDate = $request->startDate ?? date('Y-m-d');
-        $endDate = $request->endDate ?? date('Y-m-d');
+        $startDate = ($request->startDate ?? date('Y-m-d'));
+        $endDate = ($request->endDate ?? date('Y-m-d'));
         $date = $startDate . ' - ' . $endDate;
         $data = $this->data;
         $data['searchDate'] = $date;
+        $data['startDate'] = $startDate;
+        $data['endDate'] = $endDate;
+
+        $startDate = $startDate . ' 00:00:00';
+        $endDate = $endDate . ' 23:59:59';
         $data['barang_masuk'] = Inbound::where('inbound_date', '>=', $startDate)
             ->where('inbound_date', '<=', $endDate)
             ->get();
@@ -259,15 +264,13 @@ class BarangMasukController extends Controller
             $query->where('inbound_date', '>=', $startDate)
                 ->where('inbound_date', '<=', $endDate);
         })->get();
-        $data['startDate'] = $startDate;
-        $data['endDate'] = $endDate;
         return view('main.barang-masuk.report', $data);
     }
 
     public function export(Request $request)
     {
-        $startDate = $request->query('startDate');
-        $endDate = $request->query('endDate');
+        $startDate = $request->query('startDate') . ' 00:00:00';
+        $endDate = $request->query('endDate') . ' 23:59:59';
 
         $data = InboundDetail::whereHas('inbound', function ($query) use ($startDate, $endDate) {
             $query->whereBetween('inbound_date', [$startDate, $endDate]);
@@ -318,8 +321,8 @@ class BarangMasukController extends Controller
 
     public function print(Request $request)
     {
-        $startDate = $request->query('startDate');
-        $endDate = $request->query('endDate');
+        $startDate = $request->query('startDate') . ' 00:00:00';
+        $endDate = $request->query('endDate') . ' 23:59:59';
 
         $data = InboundDetail::whereHas('inbound', function ($query) use ($startDate, $endDate) {
             $query->whereBetween('inbound_date', [$startDate, $endDate]);

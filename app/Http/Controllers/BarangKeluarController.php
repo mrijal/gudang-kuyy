@@ -240,18 +240,20 @@ class BarangKeluarController extends Controller
         $date = $startDate . ' - ' . $endDate;
         $data = $this->data;
         $data['searchDate'] = $date;
+        $data['startDate'] = $startDate;
+        $data['endDate'] = $endDate;
+        $startDate = $startDate . ' 00:00:00';
+        $endDate = $endDate . ' 23:59:59';
         $data['barang_keluar'] = Outbound::where('outbound_date', '>=', $startDate)
             ->where('outbound_date', '<=', $endDate)
             ->get();
-        $data['startDate'] = $startDate;
-        $data['endDate'] = $endDate;
         return view('main.barang-keluar.report', $data);
     }
 
     public function export(Request $request)
     {
-        $startDate = $request->query('startDate');
-        $endDate = $request->query('endDate');
+        $startDate = $request->query('startDate') . ' 00:00:00';
+        $endDate = $request->query('endDate') . ' 23:59:59';
 
         $data = OutboundDetail::whereHas('outbound', function ($query) use ($startDate, $endDate) {
             $query->whereBetween('outbound_date', [$startDate, $endDate]);
@@ -306,8 +308,8 @@ class BarangKeluarController extends Controller
 
     public function print(Request $request)
     {
-        $startDate = $request->query('startDate');
-        $endDate = $request->query('endDate');
+        $startDate = $request->query('startDate') . ' 00:00:00';
+        $endDate = $request->query('endDate') . ' 23:59:59';
 
         $data = OutboundDetail::whereHas('outbound', function ($query) use ($startDate, $endDate) {
             $query->whereBetween('outbound_date', [$startDate, $endDate]);
