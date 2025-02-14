@@ -16,9 +16,11 @@
                 <th>Nama Produk</th>
                 <th>Stock Sistem</th>
                 <th>Opname Terkahir</th>
+                @can('edit-opname')
                 <th>Stock Real</th>
                 <th>Catatan</th>
                 <th>Aksi</th>
+                @endcan
               </tr>
             </thead>
             <tbody>
@@ -31,6 +33,7 @@
                     $lastOpname = App\Models\Opname::where('product_id', $product->id)->orderBy('opname_date', 'desc')->first();
                 @endphp
                 <td>{{ $lastOpname ? $lastOpname->opname_date : "-" }}</td>
+                @can('edit-opname')
                 <td>
                   <input type="number" class="form-control real-stock" data-product-id="{{ $product->id }}" min="0">
                 </td>
@@ -40,6 +43,7 @@
                 <td>
                   <button class="btn btn-primary submit-opname" data-product-id="{{ $product->id }}">Submit</button>
                 </td>
+                @endcan
               </tr>
               @endforeach
             </tbody>
@@ -73,11 +77,21 @@
         note: note
       },
       success: function(response) {
-        alert(response.message);
+        Swal.fire({
+            icon: 'success',
+            title: 'Berhasil',
+            text: 'Data opname berhasil disimpan!',
+        });
+        
         location.reload();
       },
       error: function(xhr) {
-        alert('Terjadi kesalahan, silakan coba lagi.');
+        Swal.fire({
+            icon: 'error',
+            title: 'Gagal',
+            text: 'Data opname gagal disimpan!',
+        });
+        
       }
     });
   });

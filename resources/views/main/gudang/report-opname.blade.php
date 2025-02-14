@@ -14,7 +14,7 @@
           </div>
           <div class="d-flex gap-2">
             <a href="{{url('stock-opname/print')}}?startDate={{$startDate}}&endDate={{$endDate}}" class="btn btn-primary" target="_blank">Print Laporan</a>
-            <a href="{{url('stock-opname/export')}}?startDate={{$endDate}}&endDate={{$endDate}}" class="btn btn-success" target="_blank">Export Excel</a>
+            <a href="{{url('stock-opname/export')}}?startDate={{$startDate}}&endDate={{$endDate}}" class="btn btn-success" target="_blank">Export Excel</a>
           </div>
         </div>
         <div class="table-responsive">

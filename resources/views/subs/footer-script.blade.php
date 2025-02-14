@@ -4,7 +4,7 @@
 <script src="/assets/js/app.min.js"></script>
 <script src="/assets/libs/apexcharts/dist/apexcharts.min.js"></script>
 <script src="/assets/libs/simplebar/dist/simplebar.js"></script>
-<script src="/assets/js/dashboard.js"></script>
+{{-- <script src="/assets/js/dashboard.js"></script> --}}
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script type="text/javascript" src="/assets/js/moment.min.js"></script>
 <script type="text/javascript" src="/assets/js/daterangepicker.js"></script>

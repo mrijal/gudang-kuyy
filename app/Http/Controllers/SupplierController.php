@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Supplier;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class SupplierController extends Controller
 {
@@ -12,6 +13,9 @@ class SupplierController extends Controller
      */
     public function index()
     {
+        if (!auth()->user()->can('view-supplier')) {
+            abort(403);
+        }
         $data = $this->data;
         $data['suppliers'] = Supplier::all();
         return view('main.supplier.data', $data);
@@ -22,6 +26,10 @@ class SupplierController extends Controller
      */
     public function create()
     {
+        if (!auth()->user()->can('add-supplier')) {
+            abort(403);
+        }
+        $data = $this->data;
         return view('main.supplier.create');
     }
 
@@ -30,6 +38,9 @@ class SupplierController extends Controller
      */
     public function store(Request $request)
     {
+        if (!auth()->user()->can('add-supplier')) {
+            abort(403);
+        }
         $request->validate([
             'name' => 'required|string',
             'address' => 'required|string',
@@ -58,6 +69,9 @@ class SupplierController extends Controller
      */
     public function edit(string $id)
     {
+        if (!auth()->user()->can('edit-supplier')) {
+            abort(403);
+        }
         $supplier = Supplier::find($id);
 
         $data = $this->data;
@@ -71,6 +85,9 @@ class SupplierController extends Controller
      */
     public function update(Request $request, string $id)
     {
+        if (!auth()->user()->can('edit-supplier')) {
+            abort(403);
+        }
         $request->validate([
             'name' => 'required|string',
             'address' => 'required|string',
@@ -92,6 +109,9 @@ class SupplierController extends Controller
      */
     public function destroy(string $id)
     {
+        if (!auth()->user()->can('delete-supplier')) {
+            abort(403);
+        }
         $supplier = Supplier::find($id);
         $supplier->delete();
 

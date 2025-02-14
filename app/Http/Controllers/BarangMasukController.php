@@ -21,6 +21,9 @@ class BarangMasukController extends Controller
      */
     public function index()
     {
+        if (!auth()->user()->can('view-barang_masuk')) {
+            abort(403);
+        }
         $data = $this->data;
         $data['barang_masuk'] = Inbound::all();
         return view('main.barang-masuk.data', $data);
@@ -31,10 +34,13 @@ class BarangMasukController extends Controller
      */
     public function create()
     {
+        if (!auth()->user()->can('add-barang_masuk')) {
+            abort(403);
+        }
         $data = $this->data;
 
         $data['suppliers'] = Supplier::all();
-        $data['products'] = Product::all();
+        $data['products'] = Product::where('is_active', 1)->get();
 
         return view('main.barang-masuk.create', $data);
     }
@@ -44,6 +50,9 @@ class BarangMasukController extends Controller
      */
     public function store(Request $request)
     {
+        if (!auth()->user()->can('add-barang_masuk')) {
+            abort(403);
+        }
         try {
 
             $request->validate([
@@ -95,6 +104,9 @@ class BarangMasukController extends Controller
      */
     public function show(string $id)
     {
+        if (!auth()->user()->can('view-barang_masuk')) {
+            abort(403);
+        }
         $data = $this->data;
         $data['data'] = Inbound::find($id);
         return view('main.barang-masuk.show', $data);
@@ -105,10 +117,13 @@ class BarangMasukController extends Controller
      */
     public function edit(string $id)
     {
+        if (!auth()->user()->can('edit-barang_masuk')) {
+            abort(403);
+        }
         $data = $this->data;
 
         $data['suppliers'] = Supplier::all();
-        $data['products'] = Product::all();
+        $data['products'] = Product::where('is_active', 1)->get();
         $data['data'] = Inbound::find($id);
 
         return view('main.barang-masuk.edit', $data);
@@ -119,6 +134,9 @@ class BarangMasukController extends Controller
      */
     public function update(Request $request, string $id)
     {
+        if (!auth()->user()->can('edit-barang_masuk')) {
+            abort(403);
+        }
         try {
             $request->validate([
                 'tgl_masuk' => 'required',
@@ -223,6 +241,9 @@ class BarangMasukController extends Controller
      */
     public function destroy(string $id)
     {
+        if (!auth()->user()->can('delete-barang_masuk')) {
+            abort(403);
+        }
         try {
             // delete details
             $inboundDetails = InboundDetail::where('inbound_id', $id)->get();
@@ -246,8 +267,12 @@ class BarangMasukController extends Controller
 
     public function report(Request $request)
     {
+        if (!auth()->user()->can('view-barang_masuk')) {
+            abort(403);
+        }
         $startDate = ($request->startDate ?? date('Y-m-d'));
         $endDate = ($request->endDate ?? date('Y-m-d'));
+
         $date = $startDate . ' - ' . $endDate;
         $data = $this->data;
         $data['searchDate'] = $date;
@@ -269,6 +294,9 @@ class BarangMasukController extends Controller
 
     public function export(Request $request)
     {
+        if (!auth()->user()->can('view-barang_masuk')) {
+            abort(403);
+        }
         $startDate = $request->query('startDate') . ' 00:00:00';
         $endDate = $request->query('endDate') . ' 23:59:59';
 
@@ -321,6 +349,9 @@ class BarangMasukController extends Controller
 
     public function print(Request $request)
     {
+        if (!auth()->user()->can('view-barang_masuk')) {
+            abort(403);
+        }
         $startDate = $request->query('startDate') . ' 00:00:00';
         $endDate = $request->query('endDate') . ' 23:59:59';
 

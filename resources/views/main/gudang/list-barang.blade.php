@@ -70,12 +70,16 @@
                 <td class="border-bottom-0">
                   <div class="d-flex align-items-center gap-2">
                     <a href="{{url('product/'. $item->id)}}" class="btn btn-primary" title="Lihat Detail Data" ><i class="ti ti-eye"></i></a>
+                    @can('edit-product')
                     <a href="{{url('product/'. $item->id . '/edit')}}" class="btn btn-success" title="Edit Data" ><i class="ti ti-edit"></i></a>
+                    @endcan
+                    @can('delete-product')
                     <form action="{{url('product/'. $item->id)}}" method="POST">
                       @csrf
                       @method('DELETE')
                       <a href="javascript:void(0)" onclick="hapus(this)" class="btn btn-danger" title="Delete Data" ><i class="ti ti-trash"></i></a>
                     </form>
+                    @endcan
                   </div>
                 </td>
               </tr>      

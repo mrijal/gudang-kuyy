@@ -6,7 +6,9 @@ use App\Http\Controllers\BarangKeluarController;
 use App\Http\Controllers\BarangMasukController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SupplierController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/login',                    [AuthController::class, 'loginPage'])->name('login');
@@ -22,15 +24,12 @@ Route::middleware(['auth'])->group(function () {
     Route::get('barang-masuk/print',    [BarangMasukController::class, 'print']);
 
     Route::get('/',                     [DashboardController::class, 'index']);
-    Route::resource('barang-masuk',     BarangMasukController::class);
-    Route::resource('barang-keluar',    BarangkeluarController::class);
-    Route::resource('supplier',         SupplierController::class);
-    Route::resource('product',          ProductController::class);
     Route::get('gudang',                [ProductController::class, 'index']);
 
     Route::get('laporan-barang-masuk',  [BarangMasukController::class, 'report']);
     Route::get('laporan-barang-keluar', [BarangKeluarController::class, 'report']);
 
+    Route::get('api/earnings-expenses', [ApiController::class, 'getEarningsExpensesData']);
     Route::get('api/product/{id}',      [ApiController::class, 'getProduct']);
 
     Route::get('/stock-opname',         [ProductController::class, 'stockOpnamePage'])->name('stock.opname');
@@ -38,4 +37,12 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/laporan-stock-opname', [ProductController::class, 'stockOpnameReport'])->name('stock.opname.report');
     Route::get('/stock-opname/print',   [ProductController::class, 'stockOpnamePrint'])->name('stock.opname.print');
     Route::get('/stock-opname/export',  [ProductController::class, 'stockOpnameExport'])->name('stock.opname.export');
+
+    Route::get('generate-permission',   [RoleController::class, 'generatePermission'])->name('generate.permission');
+    Route::resource('user',             UserController::class);
+    Route::resource('role',             RoleController::class);
+    Route::resource('barang-masuk',     BarangMasukController::class);
+    Route::resource('barang-keluar',    BarangkeluarController::class);
+    Route::resource('supplier',         SupplierController::class);
+    Route::resource('product',          ProductController::class);
 });

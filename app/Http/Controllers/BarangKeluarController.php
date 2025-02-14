@@ -19,8 +19,12 @@ class BarangKeluarController extends Controller
      */
     public function index()
     {
+        if (!auth()->user()->can('view-barang_keluar')) {
+            abort(403);
+        }
         $data = $this->data;
         $data['barang_keluar'] = Outbound::all();
+
         return view('main.barang-keluar.data', $data);
     }
 
@@ -29,8 +33,11 @@ class BarangKeluarController extends Controller
      */
     public function create()
     {
+        if (!auth()->user()->can('add-barang_keluar')) {
+            abort(403);
+        }
         $data = $this->data;
-        $data['products'] = Product::all();
+        $data['products'] = Product::where('is_active', 1)->get();
 
         return view('main.barang-keluar.create', $data);
     }
@@ -40,40 +47,30 @@ class BarangKeluarController extends Controller
      */
     public function store(Request $request)
     {
+        if (!auth()->user()->can('add-barang_keluar')) {
+            abort(403);
+        }
         $request->validate([
             'tgl_keluar' => 'required',
             'produk' => 'required',
             'qty' => 'required',
             'payment_method' => 'required',
             'total_payment' => 'required',
-            'status' => 'required',
         ]);
-
-        dd($request->all());
-
-        $payment_history = [];
-        $payment_history[] = [
-            'payment_date' => $request->tgl_keluar,
-            'payment_method' => $request->payment_method,
-            'total_payment' => $request->total_payment,
-        ];
-
-        $payment_history = json_encode($payment_history);
 
         $user = Auth::user();
         $newOutbound = Outbound::create([
             'outbound_date' => $request->tgl_keluar,
             'user_id' => $user->id,
-            'customer_name' => $request->customer_name ?? null,
-            'note' => $request->note ?? null,
+            'customer_name' => $request->customer ?? null,
+            'keterangan' => $request->note ?? null,
             'shipping_address' => $request->shipping_address ?? null,
             'shipping_fee' => $request->shipping_fee ?? null,
             'shipping_method' => $request->shipping_method ?? null,
             'discount' => $request->discount ?? null,
             'payment_method' => $request->payment_method,
             'total_payment' => $request->total_payment,
-            'payment_history' => $payment_history,
-            'status' => $request->status,
+            'status' => "pending",
         ]);
 
         foreach ($request->produk as $key => $value) {
@@ -82,7 +79,7 @@ class BarangKeluarController extends Controller
                 'product_id' => $value,
                 'quantity' => $request->qty[$key],
                 'discount' => $request->discount[$key] ?? null,
-                'price_per_unit' => $request->price_per_unit[$key] ?? null,
+                'price_per_unit' => $request->harga_satuan[$key] ?? null,
                 'note' => $request->note_produk[$key] ?? null,
             ]);
 
@@ -102,8 +99,12 @@ class BarangKeluarController extends Controller
      */
     public function show(string $id)
     {
+        if (!auth()->user()->can('view-barang_keluar')) {
+            abort(403);
+        }
         $data = $this->data;
-        $data['data'] = Outbound::find($id);
+        $data['barang_keluar'] = Outbound::find($id);
+        $data['products'] = Product::where('is_active', 1)->get();
         return view('main.barang-keluar.show', $data);
     }
 
@@ -112,10 +113,13 @@ class BarangKeluarController extends Controller
      */
     public function edit(string $id)
     {
+        if (!auth()->user()->can('edit-barang_keluar')) {
+            abort(403);
+        }
         $data = $this->data;
 
-        $data['products'] = Product::all();
-        $data['data'] = Outbound::find($id);
+        $data['products'] = Product::where('is_active', 1)->get();
+        $data['barang_keluar'] = Outbound::find($id);
 
         return view('main.barang-keluar.edit', $data);
     }
@@ -125,6 +129,9 @@ class BarangKeluarController extends Controller
      */
     public function update(Request $request, string $id)
     {
+        if (!auth()->user()->can('edit-barang_keluar')) {
+            abort(403);
+        }
         try {
             $request->validate([
                 'tgl_keluar' => 'required',
@@ -132,32 +139,32 @@ class BarangKeluarController extends Controller
                 'qty' => 'required',
                 'payment_method' => 'required',
                 'total_payment' => 'required',
-                'status' => 'required',
+                // 'status' => 'required',
             ]);
 
-            $payment_history = [];
-            $payment_history[] = [
-                'payment_date' => $request->tgl_keluar,
-                'payment_method' => $request->payment_method,
-                'total_payment' => $request->total_payment,
-            ];
+            // $payment_history = [];
+            // $payment_history[] = [
+            //     'payment_date' => $request->tgl_keluar,
+            //     'payment_method' => $request->payment_method,
+            //     'total_payment' => $request->total_payment,
+            // ];
 
-            $payment_history = json_encode($payment_history);
+            // $payment_history = json_encode($payment_history);
 
             $user = Auth::user();
             $outbound = Outbound::find($id);
             $outbound->outbound_date = $request->tgl_keluar;
             $outbound->user_id = $user->id;
-            $outbound->customer_name = $request->customer_name ?? null;
-            $outbound->note = $request->note ?? null;
+            $outbound->customer_name = $request->customer ?? null;
+            $outbound->note = $request->keterangan ?? null;
             $outbound->shipping_address = $request->shipping_address ?? null;
             $outbound->shipping_fee = $request->shipping_fee ?? null;
             $outbound->shipping_method = $request->shipping_method ?? null;
             $outbound->discount = $request->discount ?? null;
             $outbound->payment_method = $request->payment_method;
             $outbound->total_payment = $request->total_payment;
-            $outbound->payment_history = $payment_history;
-            $outbound->status = $request->status;
+            // $outbound->payment_history = $payment_history;
+            // $outbound->status = $request->status;
             $outbound->save();
 
             foreach ($request->produk as $key => $value) {
@@ -212,6 +219,9 @@ class BarangKeluarController extends Controller
      */
     public function destroy(string $id)
     {
+        if (!auth()->user()->can('delete-barang_keluar')) {
+            abort(403);
+        }
         try {
 
             $outboundDetails = OutboundDetail::where('outbound_id', $id)->get();

@@ -62,13 +62,17 @@
                 </td>
                 <td class="border-bottom-0">
                   <div class="d-flex align-items-center gap-2">
-                    <a href="{{url('barang-masuk/'. $item->id . '/edit')}}" class="btn btn-success" title="Edit Data" ><i class="ti ti-edit"></i></a>
                     <a href="{{url('barang-masuk/'. $item->id)}}" class="btn btn-primary" title="Detail Data" ><i class="ti ti-eye"></i></a>
+                    @can('edit-barang_masuk')
+                    <a href="{{url('barang-masuk/'. $item->id . '/edit')}}" class="btn btn-success" title="Edit Data" ><i class="ti ti-edit"></i></a>
+                    @endcan
+                    @can('delete-barang_masuk')
                     <form action="{{url('barang-masuk/'. $item->id)}}" method="POST">
                       @csrf
                       @method('DELETE')
                       <a href="javascript:void(0)" onclick="hapus(this)" class="btn btn-danger" title="Delete Data" ><i class="ti ti-trash"></i></a>
                     </form>
+                    @endcan
                   </div>
                 </td>
               </tr>      

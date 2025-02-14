@@ -18,6 +18,9 @@ class ProductController extends Controller
      */
     public function index()
     {
+        if (!auth()->user()->can('view-product')) {
+            abort(403);
+        }
         $data = $this->data;
         $products = Product::all();
         $data['products'] = $products;
@@ -29,6 +32,9 @@ class ProductController extends Controller
      */
     public function create()
     {
+        if (!auth()->user()->can('add-product')) {
+            abort(403);
+        }
         $data = $this->data;
         return view('main.gudang.tambah-barang', $data);
     }
@@ -38,6 +44,9 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
+        if (!auth()->user()->can('add-product')) {
+            abort(403);
+        }
         $request->validate([
             'name' => 'required',
             'sell_price' => 'required',
@@ -84,6 +93,9 @@ class ProductController extends Controller
      */
     public function show(string $id)
     {
+        if (!auth()->user()->can('view-product')) {
+            abort(403);
+        }
         $data = $this->data;
         $product = Product::find($id);
         $data['product'] = $product;
@@ -95,6 +107,9 @@ class ProductController extends Controller
      */
     public function edit(string $id)
     {
+        if (!auth()->user()->can('edit-product')) {
+            abort(403);
+        }
         $data = $this->data;
         $product = Product::find($id);
         $data['product'] = $product;
@@ -106,6 +121,9 @@ class ProductController extends Controller
      */
     public function update(Request $request, string $id)
     {
+        if (!auth()->user()->can('edit-product')) {
+            abort(403);
+        }
         $request->validate([
             'name' => 'required',
             'sell_price' => 'required',
@@ -152,6 +170,9 @@ class ProductController extends Controller
      */
     public function destroy(string $id)
     {
+        if (!auth()->user()->can('delete-product')) {
+            abort(403);
+        }
         $product = Product::find($id);
         $product->delete();
 
@@ -160,6 +181,9 @@ class ProductController extends Controller
 
     public function stockOpnamePage()
     {
+        if (!auth()->user()->can('view-opname')) {
+            abort(403);
+        }
         $data = $this->data;
         $products = Product::all();
         $data['products'] = $products;
@@ -168,6 +192,9 @@ class ProductController extends Controller
 
     public function stockOpnameUpdate(Request $request)
     {
+        if (!auth()->user()->can('add-opname')) {
+            abort(403);
+        }
         $request->validate([
             'product_id' => 'required|exists:products,id',
             'real_stock' => 'required|integer|min:0',
@@ -200,7 +227,10 @@ class ProductController extends Controller
 
     public function stockOpnameReport(Request $request)
     {
-        $startDate = $request->start_date ?? now()->subMonth()->format('Y-m-d');
+        if (!auth()->user()->can('view-opname')) {
+            abort(403);
+        }
+        $startDate = $request->start_date ?? now()->format('Y-m-d');
         $endDate = $request->end_date ?? now()->format('Y-m-d');
         $date = $startDate . ' - ' . $endDate;
         $data = $this->data;
@@ -220,6 +250,9 @@ class ProductController extends Controller
 
     public function stockOpnameExport(Request $request)
     {
+        if (!auth()->user()->can('view-opname')) {
+            abort(403);
+        }
         try {
             $startDate = $request->query('startDate') . ' 00:00:00';
             $endDate = $request->query('endDate') . ' 23:59:59';
@@ -278,6 +311,9 @@ class ProductController extends Controller
 
     public function stockOpnamePrint(Request $request)
     {
+        if (!auth()->user()->can('view-opname')) {
+            abort(403);
+        }
         $startDate = $request->query('startDate') . ' 00:00:00';
         $endDate = $request->query('endDate') . ' 23:59:59';
 

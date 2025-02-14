@@ -8,6 +8,21 @@
           @csrf
         <div class="d-flex justify-content-between align-items-center">
           <h2 class="fw-semibold mb-4">Tambah Barang Keluar</h2>
+          @if ($errors->any())
+              <div class="alert alert-danger">
+                  <ul>
+                      @foreach ($errors->all() as $error)
+                          <li>{{ $error }}</li>
+                      @endforeach
+                  </ul>
+              </div>
+          @endif
+
+          @if (session('success'))
+              <div class="alert alert-success">
+                  {{ session('success') }}
+              </div>
+          @endif
         </div>
         <div class="container-fluid mb-3"> 
           <div class="row">
@@ -106,7 +121,17 @@
               <tr>
                 <td colspan="4"></td>
                 <td colspan="" class="text-start border-bottom-0 p-0"><h6 class="fw-semibold mb-0">Grand Total</h6></td>
-                <td colspan="" class="border-bottom-0 p-0"><input type="number" id="grand_total" class="form-control border-0 fw-bold" name="grand_total" readonly></td>
+                <td colspan="" class="border-bottom-0 p-0"><input type="number" id="grand_total" class="form-control border-0 fw-bold" name="total_payment" readonly></td>
+              </tr>
+              <tr>
+                <td colspan="4"></td>
+                <td colspan="" class="text-start border-bottom-0 p-0"><h6 class="fw-semibold mb-0">Metode Pembayaran</h6></td>
+                <td colspan="" class="border-bottom-0 p-0">
+                  <select name="payment_method" class="form-control">
+                    <option value="">Pilih Metode Pembayaran</option>
+                    <option value="cash">Cash</option>
+                    <option value="transfer">Transfer</option>
+                  </select>
               </tr>
               <tr>
                 <td colspan="4"></td>
@@ -116,7 +141,7 @@
               <tr>
                 <td colspan="4"></td>
                 <td colspan="" class="text-start border-bottom-0 p-0"><h6 class="fw-semibold mb-0">Amount Payment Left</h6></td>
-                <td colspan="" class="border-bottom-0 p-0"><input type="number" id="amount_payment_left" class="form-control" name="amount_payment_left"></td>
+                <td colspan="" class="border-bottom-0 p-0"><input type="number" id="amount_payment_left" class="form-control" name="amount_payment_left" readonly></td>
               </tr>
               <tr>
                 <td colspan="4"></td>
@@ -164,7 +189,7 @@
             <td class="border-bottom-0">
               <div class="d-flex gap-2 align-items-center justify-content-center">
                 <a href="javascript:void(0)" class="btn btn-danger" title="Kurang Qty" onclick="kurang(this)"><i class="ti ti-minus"></i></a>
-                <input type="number" name="qty[]" class="form-control text-center" value="0">
+                <input type="number" name="qty[]" class="form-control text-center" value="0" max="5">
                 <a href="javascript:void(0)" class="btn btn-primary" title="Tambah Qty" onclick="tambah(this)"><i class="ti ti-plus"></i></a>
               </div>
             </td>
@@ -180,35 +205,41 @@
       });
 
       // click tambah button to increase qty
-      function tambah(el){
-        let qty = $(el).closest('td').find('input[name="qty[]"]').val();
-        qty = parseInt(qty) + 1;
-        $(el).closest('td').find('input[name="qty[]"]').val(qty);
+      function tambah(el) {
+        let qty_input = $(el).closest('td').find('input[name="qty[]"]');
+        let max_qty = parseInt(qty_input.attr('max')) || Infinity; // Get max attribute, default to Infinity if not set
+        let qty = parseInt(qty_input.val()) || 0;
 
-        // calculate total
-        let harga_satuan = $(el).closest('tr').find('input[name="harga_satuan[]"]').val();
-        let total = harga_satuan * qty;
-        $(el).closest('tr').find('input[name="total[]"]').val(total);
-
-        calculateTotal()
-      }
-
-      // click kurang button to decrease qty
-      function kurang(el){
-        let qty = $(el).closest('td').find('input[name="qty[]"]').val();
-        qty = parseInt(qty) - 1;
-        if(qty < 0){
-          qty = 0;
+        if (qty < max_qty) {
+            qty += 1;
+            qty_input.val(qty);
         }
-        $(el).closest('td').find('input[name="qty[]"]').val(qty);
-        
-        let harga_satuan = $(el).closest('tr').find('input[name="harga_satuan[]"]').val();
-        let total = harga_satuan * qty;
-        $(el).closest('tr').find('input[name="total[]"]').val(total);
-        
-        calculateTotal()
+
+        // Calculate total
+        updateTotal(el, qty);
       }
 
+      // Click kurang button to decrease qty
+      function kurang(el) {
+          let qty_input = $(el).closest('td').find('input[name="qty[]"]');
+          let qty = parseInt(qty_input.val()) || 0;
+
+          if (qty > 0) {
+              qty -= 1;
+              qty_input.val(qty);
+          }
+
+          // Calculate total
+          updateTotal(el, qty);
+      }
+      // Function to calculate and update total
+      function updateTotal(el, qty) {
+          let harga_satuan = $(el).closest('tr').find('input[name="harga_satuan[]"]').val();
+          let total = harga_satuan * qty;
+          $(el).closest('tr').find('input[name="total[]"]').val(total);
+
+          calculateTotal();
+      }
       // click delete button to remove row
       function hapus(el){
         $(el).closest('tr').remove();
@@ -254,6 +285,10 @@
           }
           all_total += parseInt(total);
         });
+
+        // add shipping fee
+        let shipping_fee = $('#shipping_fee').val();
+        all_total += parseInt(shipping_fee);
         $('#all_total').val(all_total);
 
         let discount = $('#discount').val();
@@ -261,15 +296,40 @@
         $('#grand_total').val(grand_total);
       }
 
-      // wheen produk is changed, set harga_satuan get from /api/product/{id}
-      $('#table_detail').on('change', 'select[name="produk[]"]', function(){
-        let id = $(this).val();
-        let harga_satuan = $(this).closest('tr').find('input[name="harga_satuan[]"]');
-        $.get(`/api/product/${id}`, function(data){
-          console.log(data);
-          
-          harga_satuan.val(data.sell_price);
-        });
+      // When produk is changed, set harga_satuan from /api/product/{id}
+      $('#table_detail').on('change', 'select[name="produk[]"]', function(e) {
+          let id = $(this).val();
+          let currentSelect = $(this);
+          let selected = false;
+
+          $('#table_detail select[name="produk[]"]').each(function() {
+              if ($(this).val() == id && !$(this).is(currentSelect)) {
+                  selected = true;
+              }
+          });
+
+          if (selected) {
+              alert('Produk sudah dipilih sebelumnya!');
+              // Remove selected option
+              $(this).val('');
+              return;
+          }
+
+          if (selected) {
+          }
+          let harga_satuan = $(this).closest('tr').find('input[name="harga_satuan[]"]');
+          let qty_input = $(this).closest('tr').find('input[name="qty[]"]');
+
+          $.get(`/api/product/${id}`, function(data) {
+              harga_satuan.val(data.sell_price);
+
+              // Set max qty and apply to buttons
+              if (data.stock !== null && !isNaN(data.stock)) {
+                  qty_input.attr('max', data.stock);
+              } else {
+                  qty_input.removeAttr('max'); // Remove max if stock is invalid
+              }
+          });
       });
 
       // calculate total when discount is changed
@@ -294,6 +354,19 @@
         // toggle shipping_fee_row
         $('#shipping_fee_row').addClass('d-none');
         // calculate total
+        calculateTotal();
+      });
+
+      // calculate amount_payment_left when amount_payment is changed
+      $('#amount_payment').keyup(function(){
+        let grand_total = $('#grand_total').val();
+        let amount_payment = $(this).val();
+        let amount_payment_left = grand_total - amount_payment;
+        $('#amount_payment_left').val(amount_payment_left);
+      });
+
+      // calculate total and grand total when shipping_fee is changed
+      $('#shipping_fee').keyup(function(){
         calculateTotal();
       });
     </script>
