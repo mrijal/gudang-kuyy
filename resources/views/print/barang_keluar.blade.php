@@ -81,12 +81,12 @@
                 <td>{{ $row['No'] }}</td>
                 <td>{{ $row['Nama Produk'] }}</td>
                 <td>{{ $row['Quantity'] }}</td>
-                <td>{{ $row['Harga Produk'] }}</td>
+                <td>Rp {{ $row['Harga Produk'] }}</td>
                 <td>{{ $row['Tanggal Keluar'] }}</td>
                 <td>{{ $row['Supplier'] }}</td>
                 <td>{{ $row['Petugas'] }}</td>
                 <td>{{ $row['Catatan'] }}</td>
-                <td>{{ $row['Total Harga'] }}</td>
+                <td>Rp {{ $row['Total Harga'] }}</td>
             </tr>
             @if (($loop->index + 1) % 25 === 0)
         </tbody>

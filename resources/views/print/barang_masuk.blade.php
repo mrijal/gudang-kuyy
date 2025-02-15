@@ -58,6 +58,7 @@
                 <th>Tanggal Masuk</th>
                 <th>Supplier</th>
                 <th>Petugas</th>
+                <th>Total</th>
                 <th>Catatan</th>
             </tr>
         </thead>
@@ -70,6 +71,7 @@
                     <td>{{ $row['Tanggal Masuk'] }}</td>
                     <td>{{ $row['Supplier'] }}</td>
                     <td>{{ $row['Petugas'] }}</td>
+                    <td>Rp {{ $row['Total'] }}</td>
                     <td>{{ $row['Catatan'] }}</td>
                 </tr>
                 @if (($loop->index + 1) % 25 === 0)
@@ -85,6 +87,7 @@
                             <th>Tanggal Masuk</th>
                             <th>Supplier</th>
                             <th>Petugas</th>
+                            <th>Total</th>
                             <th>Catatan</th>
                         </tr>
                     </thead>

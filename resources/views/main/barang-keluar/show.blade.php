@@ -106,7 +106,7 @@
                     </div>
                   </td>
                   <td class="border-bottom-0">
-                    <input type="number" name="total[]" class="form-control" value="{{$item->price_per_unit ? ($item->$price_per_unit * $item->quantity) : ($item->product->sell_price * $item->quantity)}}" readonly>
+                    <input type="number" name="total[]" class="form-control" value="{{$item->price_per_unit ? ($item->price_per_unit * $item->quantity) : ($item->product->sell_price * $item->quantity)}}" readonly>
                   </td>
                   <td class="border-bottom-0">
                     {{-- <a href="javascript:void(0)" class="btn btn-danger" title="Hapus Data" onclick="hapus(this)"><i class="ti ti-trash"></i></a> --}}

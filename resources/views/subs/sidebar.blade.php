@@ -15,7 +15,7 @@
         <!-- Sidebar navigation-->
         <nav class="sidebar-nav scroll-sidebar" data-simplebar="">
           <ul id="sidebarnav">
-            @if (Auth::user() && Auth::user()->hasRole('Admin'))
+            @if (Auth::user() && (Auth::user()->hasRole('Super Admin') || Auth::user()->hasRole('Admin')))
               <li class="nav-small-cap">
                 <i class="ti ti-dots nav-small-cap-icon fs-4"></i>
                 <span class="hide-menu">Home</span>

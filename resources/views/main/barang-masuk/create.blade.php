@@ -8,6 +8,21 @@
           @csrf
         <div class="d-flex justify-content-between align-items-center">
           <h2 class="fw-semibold mb-4">Tambah Barang Masuk</h2>
+          @if ($errors->any())
+              <div class="alert alert-danger">
+                  <ul>
+                      @foreach ($errors->all() as $error)
+                          <li>{{ $error }}</li>
+                      @endforeach
+                  </ul>
+              </div>
+          @endif
+
+          @if (session('success'))
+              <div class="alert alert-success">
+                  {{ session('success') }}
+              </div>
+          @endif
         </div>
         <div class="container-fluid mb-3"> 
           <div class="row">

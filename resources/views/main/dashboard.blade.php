@@ -113,7 +113,7 @@
                 <td class="border-bottom-0">
                   <div class="d-flex align-items-center gap-2">
                     <ul>
-                      @foreach ($item->outboundDetails as $detail)
+                      @foreach ($item->details as $detail)
                       <li class="mb-0">{{$detail->product->name}} x {{$detail->qty}}</li>
                       @endforeach
                     </ul>
@@ -149,10 +149,10 @@
             <div class="col-sm-3 col-xl-2">
               <div class="card overflow-hidden rounded-2">
                 <div class="position-relative">
-                  <a href="javascript:void(0)"><img src="{{ asset('storage/' . $item->image) }}" class="card-img-top rounded-0" alt="..."></a>
+                  <a href="javascript:void(0)"><img src="{{ asset('storage/' . $item->product_image) }}" class="card-img-top rounded-0" alt="..."></a>
                 </div>
                 <div class="card-body pt-3 p-4">
-                  <h6 class="fw-semibold fs-4">{{$item->name}}</h6>
+                  <h5 class="fw-semibold fs-4">{{$item->product_name}}</h5>
                   <div class="d-flex align-items-center justify-content-between">
                     <h6 class="fw-semibold fs-4 mb-0">Total Penjualan : {{$item->total_quantity}}</h6>
                   </div>
@@ -180,12 +180,15 @@
   let dataEarningExpenses = [];
   let xaxisCategories = [];
   let chart = null;
+  let max = 100000;
   // get data series from ajax request url (/api/earnings-expenses)
   $.get('{{url('/api/earnings-expenses')}}', function (data) {
     dataEarningExpenses = [
       { name: "Earnings this month:", data: data.earnings },
       { name: "Expense this month:", data: data.expenses },
     ];
+
+    max = Math.max(...data.earnings, ...data.expenses);
     xaxisCategories = data.months;
 
     console.log(dataEarningExpenses);
@@ -259,7 +262,7 @@
       yaxis: {
         show: true,
         min: 0,
-        max: 400,
+        max: max,
         tickAmount: 4,
         labels: {
           style: {

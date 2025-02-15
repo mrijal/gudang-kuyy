@@ -26,6 +26,9 @@
                   <h6 class="fw-semibold mb-0">Jumlah Barang</h6>
                 </th>
                 <th class="border-bottom-0">
+                  <h6 class="fw-semibold mb-0">Total</h6>
+                </th>
+                <th class="border-bottom-0">
                   <h6 class="fw-semibold mb-0">Catatan</h6>
                 </th>
                 <th class="border-bottom-0">
@@ -56,6 +59,9 @@
                 </td>
                 <td class="border-bottom-0">
                   <h6 class="fw-semibold mb-0 fs-4">{{$total_product}}</h6>
+                </td>
+                <td class="border-bottom-0">
+                  <h6 class="fw-semibold mb-0 fs-4">Rp {{$item->total_payment ? number_format($item->total_payment, 0, ',', '.') : "-"}}</h6>
                 </td>
                 <td class="border-bottom-0">
                   <h6 class="fw-semibold mb-0 fs-4">{{$item->note}}</h6>

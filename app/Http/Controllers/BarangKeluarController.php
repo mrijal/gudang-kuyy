@@ -23,7 +23,7 @@ class BarangKeluarController extends Controller
             abort(403);
         }
         $data = $this->data;
-        $data['barang_keluar'] = Outbound::all();
+        $data['barang_keluar'] = Outbound::orderBy('created_at', 'desc')->get();
 
         return view('main.barang-keluar.data', $data);
     }
@@ -256,6 +256,7 @@ class BarangKeluarController extends Controller
         $endDate = $endDate . ' 23:59:59';
         $data['barang_keluar'] = Outbound::where('outbound_date', '>=', $startDate)
             ->where('outbound_date', '<=', $endDate)
+            ->orderBy('created_at', 'desc')
             ->get();
         return view('main.barang-keluar.report', $data);
     }
@@ -267,7 +268,7 @@ class BarangKeluarController extends Controller
 
         $data = OutboundDetail::whereHas('outbound', function ($query) use ($startDate, $endDate) {
             $query->whereBetween('outbound_date', [$startDate, $endDate]);
-        })->get();
+        })->orderBy('created_at', 'desc')->get();
 
         // timestamp for the file name
         $timestamp = date('YmdHis');
@@ -323,7 +324,7 @@ class BarangKeluarController extends Controller
 
         $data = OutboundDetail::whereHas('outbound', function ($query) use ($startDate, $endDate) {
             $query->whereBetween('outbound_date', [$startDate, $endDate]);
-        })->get();
+        })->orderBy('created_at', 'desc')->get();
 
         // Format the data for printing
         $formattedData = $data->map(function ($item, $index) {

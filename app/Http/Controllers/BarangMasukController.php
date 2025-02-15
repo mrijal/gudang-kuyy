@@ -25,7 +25,7 @@ class BarangMasukController extends Controller
             abort(403);
         }
         $data = $this->data;
-        $data['barang_masuk'] = Inbound::all();
+        $data['barang_masuk'] = Inbound::orderBy('created_at', 'desc')->get();
         return view('main.barang-masuk.data', $data);
     }
 
@@ -53,50 +53,60 @@ class BarangMasukController extends Controller
         if (!auth()->user()->can('add-barang_masuk')) {
             abort(403);
         }
-        try {
+        // try {
 
-            $request->validate([
-                'tgl_masuk' => 'required',
-                'supplier' => 'required',
-                'produk' => 'required',
-                "qty" => 'required',
-            ]);
+        $request->validate([
+            'tgl_masuk' => 'required',
+            'supplier' => 'required',
+            'produk' => 'required',
+            "qty" => 'required',
+        ]);
 
-            $user = Auth::user();
-            $newInbound = Inbound::create([
-                'inbound_date' => $request->tgl_masuk,
-                'supplier_id' => $request->supplier,
-                'user_id' => $user->id,
-                'note' => $request->keterangan ?? null,
-            ]);
+        $totalPayment = 0;
 
-            $details = [];
+        $user = Auth::user();
+        $newInbound = Inbound::create([
+            'inbound_date' => $request->tgl_masuk,
+            'supplier_id' => $request->supplier,
+            'user_id' => $user->id,
+            'note' => $request->keterangan ?? null,
+        ]);
 
-            foreach ($request->produk as $key => $value) {
-                $details[] = [
-                    'inbound_id' => $newInbound->id,
-                    'product_id' => $value,
-                    'note' => $request->keterangan_produk[$key] ?? null,
-                    'quantity' => $request->qty[$key],
-                ];
+        $details = [];
 
-                // update product stock by $request->qty[$key]
-                $product = Product::find($value);
-                $product->stock += $request->qty[$key];
-                $product->save();
-            }
+        foreach ($request->produk as $key => $value) {
+            $product = Product::find($value);
 
-            if (count($details) > 0) {
-                foreach ($details as $detail) {
-                    InboundDetail::create($detail);
-                }
-            }
+            $details[] = [
+                'inbound_id' => $newInbound->id,
+                'product_id' => $value,
+                'note' => $request->keterangan_produk[$key] ?? null,
+                'quantity' => $request->qty[$key],
+                'buy_price' => $product->buy_price,
+            ];
 
-            return redirect('barang-masuk')->with('success', 'Data barang masuk berhasil ditambahkan.');
-        } catch (\Throwable $th) {
-            Log::error($th);
-            return redirect('barang-masuk/create')->with('error', 'Data barang masuk gagal ditambahkan.');
+
+            // update product stock by $request->qty[$key]
+            $product->stock += $request->qty[$key];
+            $product->save();
+
+            $totalPayment += $request->qty[$key] * $product->buy_price;
         }
+
+        if (count($details) > 0) {
+            foreach ($details as $detail) {
+                InboundDetail::create($detail);
+            }
+        }
+
+        $newInbound->total_payment = $totalPayment;
+        $newInbound->save();
+
+        return redirect('barang-masuk')->with('success', 'Data barang masuk berhasil ditambahkan.');
+        // } catch (\Throwable $th) {
+        //     Log::error($th);
+        //     return redirect('barang-masuk/create')->with('error', 'Data barang masuk gagal ditambahkan.');
+        // }
     }
 
     /**
@@ -282,7 +292,7 @@ class BarangMasukController extends Controller
         $startDate = $startDate . ' 00:00:00';
         $endDate = $endDate . ' 23:59:59';
         $data['barang_masuk'] = Inbound::where('inbound_date', '>=', $startDate)
-            ->where('inbound_date', '<=', $endDate)
+            ->where('inbound_date', '<=', $endDate)->orderBy('created_at', 'desc')
             ->get();
 
         $data['detail_barang_masuk'] = InboundDetail::whereHas('inbound', function ($query) use ($startDate, $endDate) {
@@ -302,7 +312,7 @@ class BarangMasukController extends Controller
 
         $data = InboundDetail::whereHas('inbound', function ($query) use ($startDate, $endDate) {
             $query->whereBetween('inbound_date', [$startDate, $endDate]);
-        })->get();
+        })->orderBy('created_at', 'desc')->get();
 
         // timestamp for the file name
         $timestamp = date('YmdHis');
@@ -322,6 +332,7 @@ class BarangMasukController extends Controller
             'Tanggal Masuk',
             'Supplier',
             'Petugas',
+            'Total',
             'Catatan'
         ], $headerStyle);
 
@@ -338,6 +349,7 @@ class BarangMasukController extends Controller
                 $item->inbound->inbound_date ?? 'N/A',
                 $item->inbound->supplier->name ?? 'N/A',
                 $item->inbound->user->name ?? 'N/A',
+                number_format($item->buy_price * $item->quantity, 0, ',', '.') ?? 'N/A',
                 $item->inbound->note ?? 'N/A',
             ]);
             $writer->addRow($row);
@@ -357,7 +369,7 @@ class BarangMasukController extends Controller
 
         $data = InboundDetail::whereHas('inbound', function ($query) use ($startDate, $endDate) {
             $query->whereBetween('inbound_date', [$startDate, $endDate]);
-        })->get();
+        })->orderBy('created_at', 'desc')->get();
 
         // Format the data for printing
         $formattedData = $data->map(function ($item, $index) {
@@ -368,6 +380,7 @@ class BarangMasukController extends Controller
                 'Tanggal Masuk' => $item->inbound->inbound_date ?? 'N/A',
                 'Supplier' => $item->inbound->supplier->name ?? 'N/A',
                 'Petugas' => $item->inbound->user->name ?? 'N/A',
+                'Total' => number_format($item->quantity * $item->buy_price, 0, ',', '.') ?? 'N/A',
                 'Catatan' => $item->inbound->note ?? 'N/A',
             ];
         });

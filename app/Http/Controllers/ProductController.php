@@ -185,7 +185,7 @@ class ProductController extends Controller
             abort(403);
         }
         $data = $this->data;
-        $products = Product::all();
+        $products = Product::orderBy('created_at', 'desc')->get();
         $data['products'] = $products;
         return view('main.gudang.stock-opname', $data);
     }
@@ -241,7 +241,7 @@ class ProductController extends Controller
         $endDate = $endDate . ' 23:59:59';
         $opnames = Opname::where('opname_date', '>=', $startDate)
             ->where('opname_date', '<=', $endDate)
-            ->get();
+            ->orderBy('created_at', 'desc')->get();
         $data['opnames'] = $opnames;
         return view('main.gudang.report-opname', $data);
     }
@@ -259,7 +259,7 @@ class ProductController extends Controller
 
             $data = Opname::where('opname_date', '>=', $startDate)
                 ->where('opname_date', '<=', $endDate)
-                ->get();
+                ->orderBy('created_at', 'desc')->get();
 
             // timestamp for the file name
             $timestamp = date('YmdHis');
@@ -319,7 +319,7 @@ class ProductController extends Controller
 
         $data = Opname::where('opname_date', '>=', $startDate)
             ->where('opname_date', '<=', $endDate)
-            ->get();
+            ->orderBy('created_at', 'desc')->get();
 
         // Format the data for printing
         $formattedData = $data->map(function ($item, $index) {
